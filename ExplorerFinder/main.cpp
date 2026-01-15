@@ -6,9 +6,10 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QExplorerFinder window;
     
-    if (argc > 1) {
-        window.setTargetPath(QString::fromLocal8Bit(argv[1]));
-        window.setWindowTitle("Finding in: " + QString::fromLocal8Bit(argv[1]));
+    QStringList args = QCoreApplication::arguments();
+    if (args.count() > 1) {
+        window.setTargetPath(args[1]);
+        window.setWindowTitle("Finding in: " + args[1]);
     }
 
     window.show();
