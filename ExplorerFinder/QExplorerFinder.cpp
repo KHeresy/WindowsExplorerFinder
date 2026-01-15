@@ -34,14 +34,14 @@ void QExplorerFinder::setTargetPath(const QString& path)
     if (m_targetPath.length() > 3 && m_targetPath.endsWith("\\")) {
         m_targetPath.chop(1);
     }
-    ui->editFolder->setText(m_targetPath);
+    ui->lineEditFolder->setText(m_targetPath);
 }
 
-void QExplorerFinder::on_pushButton_clicked()
+void QExplorerFinder::on_btnSearch_clicked()
 {
     if (m_targetPath.isEmpty()) return;
 
-    QString searchPattern = ui->lineEdit->text();
+    QString searchPattern = ui->lineEditSearch->text();
     if (searchPattern.isEmpty()) return;
 
     // Support wildcards if user provided, otherwise *pattern*
@@ -52,26 +52,26 @@ void QExplorerFinder::on_pushButton_clicked()
     QDir dir(m_targetPath);
     QStringList files = dir.entryList(QStringList() << searchPattern, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     
-    ui->listWidget->clear();
-    ui->listWidget->addItems(files);
+    ui->listResults->clear();
+    ui->listResults->addItems(files);
 }
 
-void QExplorerFinder::on_buttonSelected_clicked()
+void QExplorerFinder::on_btnSelectAll_clicked()
 {
     QStringList files;
-    for(int i = 0; i < ui->listWidget->count(); ++i)
+    for(int i = 0; i < ui->listResults->count(); ++i)
     {
-        files << ui->listWidget->item(i)->text();
+        files << ui->listResults->item(i)->text();
     }
     selectFiles(files);
 }
 
-void QExplorerFinder::on_lineEdit_returnPressed()
+void QExplorerFinder::on_lineEditSearch_returnPressed()
 {
-    on_pushButton_clicked();
+    on_btnSearch_clicked();
 }
 
-void QExplorerFinder::on_listWidget_itemClicked(QListWidgetItem *item)
+void QExplorerFinder::on_listResults_itemClicked(QListWidgetItem *item)
 {
     if (item) {
         selectFiles(QStringList() << item->text());

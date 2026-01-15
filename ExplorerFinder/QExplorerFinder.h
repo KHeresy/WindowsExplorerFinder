@@ -18,10 +18,10 @@ public:
     void setTargetPath(const QString& path);
 
 private slots:
-    void on_pushButton_clicked();
-    void on_buttonSelected_clicked();
-    void on_lineEdit_returnPressed();
-    void on_listWidget_itemClicked(QListWidgetItem *item);
+    void on_btnSearch_clicked();
+    void on_btnSelectAll_clicked();
+    void on_lineEditSearch_returnPressed();
+    void on_listResults_itemClicked(QListWidgetItem *item);
 
 private:
     Ui::QExplorerFinderClass *ui;
