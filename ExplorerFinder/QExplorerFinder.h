@@ -23,6 +23,7 @@ private slots:
     void on_lineEditSearch_returnPressed();
     
     void on_listResults_itemDoubleClicked(QListWidgetItem *item);
+    void on_listResults_itemActivated(QListWidgetItem *item);
     void on_listResults_itemSelectionChanged();
 
     void on_btnListSelectAll_clicked();
@@ -30,6 +31,9 @@ private slots:
     void on_btnListNone_clicked();
     
     void on_chkAlwaysOnTop_stateChanged(int state);
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     Ui::QExplorerFinderClass *ui;

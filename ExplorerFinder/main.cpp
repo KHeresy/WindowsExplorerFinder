@@ -1,4 +1,5 @@
 #include "QExplorerFinder.h"
+#include "SettingsDialog.h"
 #include <QtWidgets/QApplication>
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
@@ -6,6 +7,8 @@
 #include <QtWidgets/QMenu>
 #include <QtGui/QIcon>
 #include <QAbstractNativeEventFilter>
+#include <QKeySequence>
+#include <QSettings>
 
 #include <windows.h>
 #include <shlobj.h>
@@ -37,14 +40,11 @@ QString GetActiveExplorerPath() {
     wchar_t className[256];
     if (!GetClassNameW(hwnd, className, 256)) return QString();
 
-    // Explorer windows are usually CabinetWClass or ExploreWClass
     if (wcscmp(className, L"CabinetWClass") != 0 && wcscmp(className, L"ExploreWClass") != 0) {
         return QString();
     }
 
     QString foundPath;
-    
-    // Iterate ShellWindows to find this HWND
     CoInitialize(NULL); 
     {
         ComPtr<IShellWindows> spShellWindows;
@@ -63,7 +63,6 @@ QString GetActiveExplorerPath() {
                         LONG_PTR hwndBrowser = 0;
                         spBrowser->get_HWND(&hwndBrowser);
                         if ((HWND)hwndBrowser == hwnd) {
-                            // Match! Get Path
                             ComPtr<IDispatch> spDispDoc;
                             if (SUCCEEDED(spBrowser->get_Document(&spDispDoc))) {
                                 ComPtr<IShellFolderViewDual> spView;
@@ -84,7 +83,7 @@ QString GetActiveExplorerPath() {
                                     }
                                 }
                             }
-                            break; // Found and processed
+                            break;
                         }
                     }
                 }
@@ -93,18 +92,52 @@ QString GetActiveExplorerPath() {
         }
     }
     CoUninitialize();
-    
     return foundPath;
 }
 
 class ExplorerHotkeyFilter : public QAbstractNativeEventFilter {
 public:
     ExplorerHotkeyFilter() {
-        // Register Ctrl + F3 (ID: 8888)
-        RegisterHotKey(NULL, 8888, MOD_CONTROL, VK_F3);
+        updateHotkey();
     }
     ~ExplorerHotkeyFilter() {
         UnregisterHotKey(NULL, 8888);
+    }
+
+    void updateHotkey() {
+        UnregisterHotKey(NULL, 8888);
+        QKeySequence seq = SettingsDialog::getHotkey();
+        if (seq.isEmpty()) return;
+
+        UINT modifiers = 0;
+        UINT vk = 0;
+
+        // Simple mapping for QKeySequence to Windows Hotkey
+        // Note: For a robust implementation, use a more complete mapper.
+        if (seq[0].toCombined() & Qt::ControlModifier) modifiers |= MOD_CONTROL;
+        if (seq[0].toCombined() & Qt::AltModifier) modifiers |= MOD_ALT;
+        if (seq[0].toCombined() & Qt::ShiftModifier) modifiers |= MOD_SHIFT;
+        if (seq[0].toCombined() & Qt::MetaModifier) modifiers |= MOD_WIN;
+
+        // Extract key. Qt key codes for letters are same as ASCII/VK
+        int qtKey = seq[0].toCombined() & 0x01FFFFFF;
+        if (qtKey >= Qt::Key_F1 && qtKey <= Qt::Key_F12) {
+            vk = VK_F1 + (qtKey - Qt::Key_F1);
+        } else if (qtKey >= 'A' && qtKey <= 'Z') {
+            vk = qtKey;
+        } else if (qtKey >= '0' && qtKey <= '9') {
+            vk = qtKey;
+        } else {
+            // Fallback for some common keys
+            switch(qtKey) {
+                case Qt::Key_Space: vk = VK_SPACE; break;
+                case Qt::Key_Return: vk = VK_RETURN; break;
+                case Qt::Key_Escape: vk = VK_ESCAPE; break;
+                default: vk = qtKey; break;
+            }
+        }
+
+        RegisterHotKey(NULL, 8888, modifiers, vk);
     }
 
     bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override {
@@ -129,8 +162,6 @@ int main(int argc, char *argv[])
     app.setQuitOnLastWindowClosed(false);
 
     QString serverName = "ExplorerFinderServer";
-    
-    // Try to connect to existing server
     QLocalSocket socket;
     socket.connectToServer(serverName);
     if (socket.waitForConnected(500)) {
@@ -139,17 +170,13 @@ int main(int argc, char *argv[])
             socket.write(args[1].toUtf8());
             socket.waitForBytesWritten(1000);
         }
-        return 0; // Exit secondary instance
+        return 0;
     }
 
-    // Start Server
     QLocalServer server;
     if (!server.listen(serverName)) {
-        // If listen fails (maybe stale lock file), try removing and listening again
         server.removeServer(serverName);
-        if (!server.listen(serverName)) {
-            // If still fails, just run as standalone (or handle error)
-        }
+        server.listen(serverName);
     }
 
     QObject::connect(&server, &QLocalServer::newConnection, [&server]() {
@@ -164,22 +191,36 @@ int main(int argc, char *argv[])
         QObject::connect(clientConnection, &QLocalSocket::disconnected, clientConnection, &QLocalSocket::deleteLater);
     });
 
-    // Install Hotkey Filter
     ExplorerHotkeyFilter hotkeyFilter;
     app.installNativeEventFilter(&hotkeyFilter);
 
-    // System Tray
     QSystemTrayIcon trayIcon(QIcon(":/QExplorerFinder/app_icon.png"), &app);
     trayIcon.setToolTip("Explorer Finder");
     
     QMenu trayMenu;
+    QAction* settingsAction = trayMenu.addAction("Settings...");
+    
+    auto openSettings = [&hotkeyFilter]() {
+        SettingsDialog dlg;
+        if (dlg.exec() == QDialog::Accepted) {
+            hotkeyFilter.updateHotkey();
+        }
+    };
+
+    QObject::connect(settingsAction, &QAction::triggered, openSettings);
+    QObject::connect(&trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
+        if (reason == QSystemTrayIcon::DoubleClick) {
+            openSettings();
+        }
+    });
+
+    trayMenu.addSeparator();
     QAction* exitAction = trayMenu.addAction("Exit");
     QObject::connect(exitAction, &QAction::triggered, &app, &QApplication::quit);
     
     trayIcon.setContextMenu(&trayMenu);
     trayIcon.show();
 
-    // Initial Window if args provided
     QStringList args = QCoreApplication::arguments();
     if (args.count() > 1) {
         openWindow(args[1]);

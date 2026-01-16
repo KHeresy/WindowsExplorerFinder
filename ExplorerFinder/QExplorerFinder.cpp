@@ -3,6 +3,7 @@
 #include <QStringList>
 #include <QDebug>
 #include <QSettings>
+#include <QKeyEvent>
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
@@ -26,6 +27,7 @@ QExplorerFinder::QExplorerFinder(QWidget *parent)
     QSettings settings("ExplorerFinder", "ExplorerFinder");
     ui->chkCloseAfterSelect->setChecked(settings.value("CloseAfterSelect", false).toBool());
     ui->chkAlwaysOnTop->setChecked(settings.value("AlwaysOnTop", false).toBool());
+    ui->chkDefaultSelectAll->setChecked(settings.value("DefaultSelectAll", false).toBool());
 }
 
 QExplorerFinder::~QExplorerFinder()
@@ -33,6 +35,7 @@ QExplorerFinder::~QExplorerFinder()
     QSettings settings("ExplorerFinder", "ExplorerFinder");
     settings.setValue("CloseAfterSelect", ui->chkCloseAfterSelect->isChecked());
     settings.setValue("AlwaysOnTop", ui->chkAlwaysOnTop->isChecked());
+    settings.setValue("DefaultSelectAll", ui->chkDefaultSelectAll->isChecked());
 
     delete ui;
 }
@@ -66,6 +69,18 @@ void QExplorerFinder::on_btnSearch_clicked()
     
     ui->listResults->clear();
     ui->listResults->addItems(files);
+    
+    if (ui->chkDefaultSelectAll->isChecked()) {
+        ui->listResults->selectAll();
+    }
+    
+    if (ui->listResults->count() > 0) {
+        ui->listResults->setFocus();
+        if (!ui->chkDefaultSelectAll->isChecked()) {
+            ui->listResults->setCurrentRow(0); // Select first item for navigation convenience if not all selected
+        }
+    }
+    
     updateStatusLabel();
 }
 
@@ -98,6 +113,12 @@ void QExplorerFinder::on_listResults_itemDoubleClicked(QListWidgetItem *item)
             close();
         }
     }
+}
+
+void QExplorerFinder::on_listResults_itemActivated(QListWidgetItem *item)
+{
+    Q_UNUSED(item);
+    on_btnSelectAll_clicked();
 }
 
 void QExplorerFinder::on_listResults_itemSelectionChanged()
@@ -259,4 +280,13 @@ void QExplorerFinder::selectFiles(const QStringList& files)
     }
 
     CoUninitialize();
+}
+
+void QExplorerFinder::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Escape) {
+        close();
+    } else {
+        QWidget::keyPressEvent(event);
+    }
 }

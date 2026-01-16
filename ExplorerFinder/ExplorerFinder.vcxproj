@@ -97,8 +97,11 @@
   <ItemGroup>
     <QtRcc Include="QExplorerFinder.qrc" />
     <QtUic Include="QExplorerFinder.ui" />
+    <QtUic Include="SettingsDialog.ui" />
     <QtMoc Include="QExplorerFinder.h" />
+    <QtMoc Include="SettingsDialog.h" />
     <ClCompile Include="QExplorerFinder.cpp" />
+    <ClCompile Include="SettingsDialog.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
