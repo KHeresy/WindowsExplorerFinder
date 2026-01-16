@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QStringList>
 #include <QDebug>
+#include <QSettings>
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
@@ -18,10 +19,19 @@ QExplorerFinder::QExplorerFinder(QWidget *parent)
     , ui(new Ui::QExplorerFinderClass())
 {
     ui->setupUi(this);
+    ui->listResults->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    ui->chkCloseAfterSelect->setChecked(settings.value("CloseAfterSelect", false).toBool());
+    ui->chkAlwaysOnTop->setChecked(settings.value("AlwaysOnTop", false).toBool());
 }
 
 QExplorerFinder::~QExplorerFinder()
 {
+    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    settings.setValue("CloseAfterSelect", ui->chkCloseAfterSelect->isChecked());
+    settings.setValue("AlwaysOnTop", ui->chkAlwaysOnTop->isChecked());
+
     delete ui;
 }
 
@@ -54,16 +64,23 @@ void QExplorerFinder::on_btnSearch_clicked()
     
     ui->listResults->clear();
     ui->listResults->addItems(files);
+    updateStatusLabel();
 }
 
 void QExplorerFinder::on_btnSelectAll_clicked()
 {
     QStringList files;
-    for(int i = 0; i < ui->listResults->count(); ++i)
+    auto selectedItems = ui->listResults->selectedItems();
+    for(auto item : selectedItems)
     {
-        files << ui->listResults->item(i)->text();
+        files << item->text();
     }
-    selectFiles(files);
+    if (!files.isEmpty()) {
+        selectFiles(files);
+        if (ui->chkCloseAfterSelect->isChecked()) {
+            close();
+        }
+    }
 }
 
 void QExplorerFinder::on_lineEditSearch_returnPressed()
@@ -71,11 +88,56 @@ void QExplorerFinder::on_lineEditSearch_returnPressed()
     on_btnSearch_clicked();
 }
 
-void QExplorerFinder::on_listResults_itemClicked(QListWidgetItem *item)
+void QExplorerFinder::on_listResults_itemDoubleClicked(QListWidgetItem *item)
 {
     if (item) {
         selectFiles(QStringList() << item->text());
+        if (ui->chkCloseAfterSelect->isChecked()) {
+            close();
+        }
     }
+}
+
+void QExplorerFinder::on_listResults_itemSelectionChanged()
+{
+    updateStatusLabel();
+}
+
+void QExplorerFinder::on_btnListSelectAll_clicked()
+{
+    ui->listResults->selectAll();
+}
+
+void QExplorerFinder::on_btnListInvert_clicked()
+{
+    for(int i = 0; i < ui->listResults->count(); ++i) {
+        QListWidgetItem* item = ui->listResults->item(i);
+        item->setSelected(!item->isSelected());
+    }
+}
+
+void QExplorerFinder::on_btnListNone_clicked()
+{
+    ui->listResults->clearSelection();
+}
+
+void QExplorerFinder::on_chkAlwaysOnTop_stateChanged(int state)
+{
+    Qt::WindowFlags flags = windowFlags();
+    if (state == Qt::Checked) {
+        flags |= Qt::WindowStaysOnTopHint;
+    } else {
+        flags &= ~Qt::WindowStaysOnTopHint;
+    }
+    setWindowFlags(flags);
+    show(); // Needed to apply window flags changes
+}
+
+void QExplorerFinder::updateStatusLabel()
+{
+    int total = ui->listResults->count();
+    int selected = ui->listResults->selectedItems().count();
+    ui->lblStatus->setText(QString("Found: %1 | Selected: %2").arg(total).arg(selected));
 }
 
 // Helper to get Folder Object from WebBrowser
