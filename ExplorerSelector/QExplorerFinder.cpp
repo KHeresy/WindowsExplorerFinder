@@ -25,7 +25,7 @@ QExplorerFinder::QExplorerFinder(QWidget *parent)
 
     setWindowIcon(QIcon(":/QExplorerFinder/app_icon.png"));
 
-    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    QSettings settings("ExplorerSelector", "ExplorerSelector");
     ui->chkCloseAfterSelect->setChecked(settings.value("CloseAfterSelect", false).toBool());
     ui->chkAlwaysOnTop->setChecked(settings.value("AlwaysOnTop", false).toBool());
     ui->chkDefaultSelectAll->setChecked(settings.value("DefaultSelectAll", false).toBool());
@@ -36,7 +36,7 @@ QExplorerFinder::QExplorerFinder(QWidget *parent)
 
 QExplorerFinder::~QExplorerFinder()
 {
-    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    QSettings settings("ExplorerSelector", "ExplorerSelector");
     settings.setValue("CloseAfterSelect", ui->chkCloseAfterSelect->isChecked());
     settings.setValue("AlwaysOnTop", ui->chkAlwaysOnTop->isChecked());
     settings.setValue("DefaultSelectAll", ui->chkDefaultSelectAll->isChecked());
@@ -311,7 +311,7 @@ void QExplorerFinder::keyPressEvent(QKeyEvent *event)
 
 void QExplorerFinder::loadHistory()
 {
-    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    QSettings settings("ExplorerSelector", "ExplorerSelector");
     QStringList history = settings.value("SearchHistory").toStringList();
     ui->lineEditSearch->clear();
     ui->lineEditSearch->addItems(history);
@@ -320,7 +320,7 @@ void QExplorerFinder::loadHistory()
 
 void QExplorerFinder::saveHistory(const QString& text)
 {
-    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    QSettings settings("ExplorerSelector", "ExplorerSelector");
     QStringList history = settings.value("SearchHistory").toStringList();
     int maxHistory = settings.value("HistorySize", 10).toInt();
 

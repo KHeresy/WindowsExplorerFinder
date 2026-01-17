@@ -15,7 +15,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    QSettings settings("ExplorerSelector", "ExplorerSelector");
     
     // Load Hotkey
     QString hotkeyStr = settings.value("GlobalHotkey", "Ctrl+F3").toString();
@@ -48,7 +48,7 @@ SettingsDialog::~SettingsDialog()
 
 void SettingsDialog::accept()
 {
-    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    QSettings settings("ExplorerSelector", "ExplorerSelector");
     
     QString newHotkey = ui->keySequenceEdit->keySequence().toString();
     bool newAutoStart = ui->chkAutoStart->isChecked();
@@ -74,7 +74,7 @@ void SettingsDialog::accept()
 
 void SettingsDialog::on_btnClearHistory_clicked()
 {
-    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    QSettings settings("ExplorerSelector", "ExplorerSelector");
     settings.remove("SearchHistory");
     QMessageBox::information(this, tr("History Cleared"), tr("Search history has been cleared."));
 }
@@ -85,15 +85,15 @@ void SettingsDialog::applyAutoStart(bool enable)
     QSettings bootSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
     QString appPath = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
     if (enable) {
-        bootSettings.setValue("ExplorerFinder", "\"" + appPath + "\"");
+        bootSettings.setValue("ExplorerSelector", "\"" + appPath + "\"");
     } else {
-        bootSettings.remove("ExplorerFinder");
+        bootSettings.remove("ExplorerSelector");
     }
 #endif
 }
 
 QKeySequence SettingsDialog::getHotkey()
 {
-    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    QSettings settings("ExplorerSelector", "ExplorerSelector");
     return QKeySequence::fromString(settings.value("GlobalHotkey", "Ctrl+F3").toString());
 }

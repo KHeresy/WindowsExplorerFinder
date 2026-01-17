@@ -163,22 +163,22 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
 
-    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    QSettings settings("ExplorerSelector", "ExplorerSelector");
     QString lang = settings.value("Language", "").toString();
 
     QTranslator translator;
     bool loaded = false;
     if (lang.isEmpty()) {
-        loaded = translator.load(QLocale::system(), "explorerfinder", "_", ":/i18n");
+        loaded = translator.load(QLocale::system(), "explorerselector", "_", ":/i18n");
     } else {
-        loaded = translator.load("explorerfinder_" + lang, ":/i18n");
+        loaded = translator.load("explorerselector_" + lang, ":/i18n");
     }
 
     if (loaded) {
         app.installTranslator(&translator);
     }
 
-    QString serverName = "ExplorerFinderServer";
+    QString serverName = "ExplorerSelectorServer";
     QLocalSocket socket;
     socket.connectToServer(serverName);
     if (socket.waitForConnected(500)) {
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
     app.installNativeEventFilter(&hotkeyFilter);
 
     QSystemTrayIcon trayIcon(QIcon(":/QExplorerFinder/app_icon.png"), &app);
-    trayIcon.setToolTip(QObject::tr("Explorer Finder"));
+    trayIcon.setToolTip(QObject::tr("Explorer Selector"));
     
     QMenu trayMenu;
     QAction* settingsAction = trayMenu.addAction(QObject::tr("Settings..."));

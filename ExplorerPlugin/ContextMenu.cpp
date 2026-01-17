@@ -229,7 +229,7 @@ void CContextMenu::RunApp(const std::wstring& folderPath)
 
     // 2. Try to connect to existing server via Named Pipe
     // QLocalServer uses "\\.\pipe\" + serverName
-    const wchar_t* pipeName = L"\\\\.\\pipe\\ExplorerFinderServer";
+    const wchar_t* pipeName = L"\\\\.\\pipe\\ExplorerSelectorServer";
     
     HANDLE hPipe = CreateFileW(pipeName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
     if (hPipe != INVALID_HANDLE_VALUE) {
@@ -246,7 +246,7 @@ void CContextMenu::RunApp(const std::wstring& folderPath)
     GetModuleFileNameW(g_hInst, szDllPath, MAX_PATH);
     PathRemoveFileSpecW(szDllPath);
     
-    std::wstring exePath = std::wstring(szDllPath) + L"\\ExplorerFinder.exe";
+    std::wstring exePath = std::wstring(szDllPath) + L"\\ExplorerSelector.exe";
 
     // Construct command line: "PathToExe" "FolderPath"
     std::wstring commandLine = L"\"" + exePath + L"\" \"" + folderPath + L"\"";
@@ -292,7 +292,7 @@ IFACEMETHODIMP CContextMenu::GetToolTip(IShellItemArray* psiItemArray, LPWSTR* p
 
 IFACEMETHODIMP CContextMenu::GetCanonicalName(GUID* pguidCommandName)
 {
-    *pguidCommandName = CLSID_ExplorerFinder;
+    *pguidCommandName = CLSID_ExplorerSelector;
     return S_OK;
 }
 

@@ -9,13 +9,13 @@
   IgnorableNamespaces="uap rescap desktop desktop4 com">
 
   <Identity
-    Name="ExplorerFinder.Package"
-    Publisher="CN=ExplorerFinderDev"
+    Name="ExplorerSelector.Package"
+    Publisher="CN=ExplorerSelectorDev"
     Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>ExplorerFinder</DisplayName>
-    <PublisherDisplayName>ExplorerFinderDev</PublisherDisplayName>
+    <DisplayName>ExplorerSelector</DisplayName>
+    <PublisherDisplayName>ExplorerSelectorDev</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -29,10 +29,10 @@
   </Capabilities>
 
   <Applications>
-    <Application Id="ExplorerFinderApp" Executable="ExplorerFinder\x64\Debug\ExplorerFinder.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="ExplorerSelectorApp" Executable="ExplorerSelector\x64\Debug\ExplorerSelector.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="ExplorerFinder"
-        Description="Fast File Search"
+        DisplayName="ExplorerSelector"
+        Description="Fast File Selection"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
@@ -43,7 +43,7 @@
           <desktop4:FileExplorerContextMenus>
             <desktop4:ItemType Type="*">
               <!-- This CLSID matches the one in ExplorerPlugin -->
-              <desktop4:Verb Id="ExplorerFinderVerb" Clsid="3289050C-926F-4C10-8531-9F31E63C2C90" />
+              <desktop4:Verb Id="ExplorerSelectorVerb" Clsid="3289050C-926F-4C10-8531-9F31E63C2C90" />
             </desktop4:ItemType>
           </desktop4:FileExplorerContextMenus>
         </desktop4:Extension>
@@ -51,7 +51,7 @@
         <!-- Register the COM Server (The DLL) so the Package knows about it -->
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:SurrogateServer DisplayName="ExplorerFinder Context Menu">
+            <com:SurrogateServer DisplayName="ExplorerSelector Context Menu">
                 <com:Class Id="3289050C-926F-4C10-8531-9F31E63C2C90" Path="ExplorerPlugin\x64\Debug\ExplorerPlugin.dll" ThreadingModel="STA"/>
             </com:SurrogateServer>
           </com:ComServer>

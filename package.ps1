@@ -11,11 +11,13 @@ New-Item -ItemType Directory -Path $appDir | Out-Null
 Write-Host "Created App directory." -ForegroundColor Cyan
 
 # 2. Check for Release Binaries
-$exePath = Join-Path $solutionDir "ExplorerFinder\x64\Release\ExplorerFinder.exe"
+# Note: Path still assumes folder structure.
+# But binary name is ExplorerSelector.exe
+$exePath = Join-Path $solutionDir "ExplorerSelector\x64\Release\ExplorerSelector.exe"
 $dllPath = Join-Path $solutionDir "ExplorerPlugin\x64\Release\ExplorerPlugin.dll"
 
 if (-not (Test-Path $exePath)) {
-    Write-Warning "Release build of ExplorerFinder.exe not found. Please build Release configuration first."
+    Write-Warning "Release build of ExplorerSelector.exe not found. Please build Release configuration first."
     Exit
 }
 if (-not (Test-Path $dllPath)) {
@@ -32,7 +34,7 @@ Write-Host "Copied Binaries." -ForegroundColor Green
 $windeployqt = Join-Path $qtBinDir "windeployqt.exe"
 if (Test-Path $windeployqt) {
     Write-Host "Running windeployqt..." -ForegroundColor Cyan
-    $exeInApp = Join-Path $appDir "ExplorerFinder.exe"
+    $exeInApp = Join-Path $appDir "ExplorerSelector.exe"
     Start-Process $windeployqt -ArgumentList "--release --no-translations --compiler-runtime `"$exeInApp`"" -NoNewWindow -Wait
 } else {
     Write-Warning "windeployqt.exe not found at $qtBinDir. You may need to copy Qt DLLs manually."
@@ -47,8 +49,8 @@ $manifestSrc = Join-Path $solutionDir "AppxManifest.xml"
 $manifestDst = Join-Path $appDir "AppxManifest.xml"
 $manifestContent = Get-Content $manifestSrc -Raw
 
-# Update paths: Remove "ExplorerFinder\x64\Debug\" prefix
-$manifestContent = $manifestContent -replace 'Executable=".*\\ExplorerFinder.exe"', 'Executable="ExplorerFinder.exe"'
+# Update paths: Remove "ExplorerSelector\x64\Debug\" prefix (if any)
+$manifestContent = $manifestContent -replace 'Executable=".*\\ExplorerSelector.exe"', 'Executable="ExplorerSelector.exe"'
 $manifestContent = $manifestContent -replace 'Path=".*\\ExplorerPlugin.dll"', 'Path="ExplorerPlugin.dll"'
 
 Set-Content $manifestDst $manifestContent
@@ -59,7 +61,7 @@ $installSrc = Join-Path $solutionDir "Install.ps1"
 $installDst = Join-Path $appDir "Install.ps1"
 $installContent = Get-Content $installSrc -Raw
 
-# Update DLL path logic
+# Update DLL path logic to be relative to script
 $installContent = $installContent -replace 'Join-Path \$projectRoot "ExplorerPlugin\\x64\\Debug\\ExplorerPlugin.dll"', 'Join-Path $projectRoot "ExplorerPlugin.dll"'
 
 Set-Content $installDst $installContent

@@ -24,7 +24,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv)
 {
-    if (IsEqualCLSID(CLSID_ExplorerFinder, rclsid))
+    if (IsEqualCLSID(CLSID_ExplorerSelector, rclsid))
     {
         CClassFactory* pClassFactory = new (std::nothrow) CClassFactory();
         if (NULL == pClassFactory)
@@ -75,8 +75,8 @@ HRESULT RegisterInHKCR(PCWSTR pszKey, PCWSTR pszSubkey, PCWSTR pszValue)
 STDAPI DllRegisterServer()
 {
     // Register CLSID
-    std::wstring strCLSID = L"CLSID\\" + std::wstring(CLSID_ExplorerFinder_String);
-    HRESULT hr = RegisterInHKCR(strCLSID.c_str(), NULL, L"ExplorerFinder Context Menu");
+    std::wstring strCLSID = L"CLSID\\" + std::wstring(CLSID_ExplorerSelector_String);
+    HRESULT hr = RegisterInHKCR(strCLSID.c_str(), NULL, L"ExplorerSelector Context Menu");
     if (SUCCEEDED(hr))
     {
         wchar_t szModule[MAX_PATH];
@@ -95,14 +95,14 @@ STDAPI DllRegisterServer()
     {
         // Directory\Background (Right click on empty space in folder)
         // Legacy (Windows 10 "Show more options" / Old Windows)
-        hr = RegisterInHKCR(L"Directory\\Background\\shellex\\ContextMenuHandlers", L"ExplorerFinder", CLSID_ExplorerFinder_String);
+        hr = RegisterInHKCR(L"Directory\\Background\\shellex\\ContextMenuHandlers", L"ExplorerSelector", CLSID_ExplorerSelector_String);
         
         if (SUCCEEDED(hr))
         {
             // Modern Windows 11 Registration (ExplorerCommandHandler)
             // Note: For this to appear in the top-level menu on Windows 11, the app usually needs to be packaged (Sparse Package)
             // or registered via identity. However, registering the handler is the first step.
-            hr = RegisterInHKCR(L"Directory\\Background\\shell\\ExplorerFinder\\ExplorerCommandHandler", NULL, CLSID_ExplorerFinder_String);
+            hr = RegisterInHKCR(L"Directory\\Background\\shell\\ExplorerSelector\\ExplorerCommandHandler", NULL, CLSID_ExplorerSelector_String);
         }
     }
 
@@ -117,12 +117,12 @@ STDAPI DllRegisterServer()
 STDAPI DllUnregisterServer()
 {
     // Unregister CLSID
-    std::wstring strCLSID = L"CLSID\\" + std::wstring(CLSID_ExplorerFinder_String);
+    std::wstring strCLSID = L"CLSID\\" + std::wstring(CLSID_ExplorerSelector_String);
     RegDeleteTreeW(HKEY_CLASSES_ROOT, strCLSID.c_str());
 
     // Unregister Shell Extension
-    RegDeleteTreeW(HKEY_CLASSES_ROOT, L"Directory\\Background\\shellex\\ContextMenuHandlers\\ExplorerFinder");
-    RegDeleteTreeW(HKEY_CLASSES_ROOT, L"Directory\\Background\\shell\\ExplorerFinder");
+    RegDeleteTreeW(HKEY_CLASSES_ROOT, L"Directory\\Background\\shellex\\ContextMenuHandlers\\ExplorerSelector");
+    RegDeleteTreeW(HKEY_CLASSES_ROOT, L"Directory\\Background\\shell\\ExplorerSelector");
 
     return S_OK;
 }

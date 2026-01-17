@@ -20,12 +20,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Heresy"
-            VALUE "FileDescription", "Explorer Finder"
+            VALUE "FileDescription", "Explorer Selector"
             VALUE "FileVersion", "0.1.0.0"
-            VALUE "InternalName", "ExplorerFinder.exe"
+            VALUE "InternalName", "ExplorerSelector.exe"
             VALUE "LegalCopyright", "Copyright (C) 2026"
-            VALUE "OriginalFilename", "ExplorerFinder.exe"
-            VALUE "ProductName", "Explorer Finder"
+            VALUE "OriginalFilename", "ExplorerSelector.exe"
+            VALUE "ProductName", "Explorer Selector"
             VALUE "ProductVersion", "0.1.0.0"
         END
     END

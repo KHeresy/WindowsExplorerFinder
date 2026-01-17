@@ -18,63 +18,67 @@
 <context>
     <name>QExplorerFinderClass</name>
     <message>
-        <location filename="../QExplorerFinder.ui" line="14"/>
         <source>Explorer Finder</source>
-        <translation>Explorer Finder</translation>
+        <translation type="vanished">Explorer Finder</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="26"/>
+        <location filename="../QExplorerFinder.ui" line="25"/>
         <source>Folder</source>
         <translation>資料夾</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="45"/>
-        <location filename="../QExplorerFinder.ui" line="58"/>
+        <location filename="../QExplorerFinder.ui" line="44"/>
+        <location filename="../QExplorerFinder.ui" line="57"/>
         <source>Search</source>
         <translation>搜尋</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="82"/>
+        <location filename="../QExplorerFinder.ui" line="81"/>
         <source>Found: 0 | Selected: 0</source>
         <translation>找到: 0 | 已選: 0</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="109"/>
+        <location filename="../QExplorerFinder.ui" line="108"/>
         <source>Select All</source>
         <translation>全選</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="116"/>
+        <location filename="../QExplorerFinder.ui" line="115"/>
         <source>Invert</source>
         <translation>反向選取</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="123"/>
+        <location filename="../QExplorerFinder.ui" line="122"/>
         <source>None</source>
         <translation>取消全選</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="134"/>
+        <location filename="../QExplorerFinder.ui" line="133"/>
         <source>Close after selection</source>
         <translation>選取後關閉</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="141"/>
+        <location filename="../QExplorerFinder.ui" line="140"/>
         <source>Always on top</source>
         <translation>永遠在最上方</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="102"/>
+        <location filename="../QExplorerFinder.ui" line="101"/>
         <source>Default Select All</source>
         <translation>預設全選</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="20"/>
+        <location filename="../QExplorerFinder.ui" line="14"/>
+        <source>Explorer Selector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QExplorerFinder.ui" line="19"/>
         <source>Debug</source>
         <translation>除錯</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="161"/>
+        <location filename="../QExplorerFinder.ui" line="160"/>
         <source>Select in Explorer</source>
         <translation>在檔案總管中選取</translation>
     </message>
@@ -82,9 +86,13 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="215"/>
         <source>Explorer Finder</source>
-        <translation>Explorer Finder</translation>
+        <translation type="vanished">Explorer Finder</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="215"/>
+        <source>Explorer Selector</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.cpp" line="218"/>

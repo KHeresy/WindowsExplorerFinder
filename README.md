@@ -1,4 +1,4 @@
-# Windows Explorer Finder
+# Windows Explorer Selector
 
 > [!CAUTION]
 > **⚠️ 警語：本專案之程式碼、文件與圖示完全由 Gemini-CLI 自動產生。**  
@@ -37,13 +37,13 @@
 ## 專案結構
 
 *   **ExplorerPlugin** (DLL): Windows Shell Extension，負責右鍵選單邏輯 (支援 IContextMenu 與 IExplorerCommand)。
-*   **ExplorerFinder** (EXE): Qt 6 應用程式，負責搜尋介面、全域快速鍵與檔案總管控制。
+*   **ExplorerSelector** (EXE): Qt 6 應用程式，負責搜尋介面、全域快速鍵與檔案總管控制。
 *   **AppxManifest.xml** / **Install.ps1**: 用於 Windows 11 Sparse Package 註冊的設定與腳本。
 
 ## 編譯說明
 
 1.  確保已安裝 Visual Studio 2026 與 Qt 6.10.1 (並包含 Network 模組)。
-2.  開啟 `ExplorerFinder.slnx`。
+2.  開啟 `ExplorerSelector.slnx`。
 3.  選擇 `Release` 設定，平台選擇 `x64`。
 4.  建置方案 (Build Solution)。
 
@@ -85,7 +85,7 @@
     regsvr32 "ExplorerPlugin.dll"
     ```
 2.  **執行主程式**：
-    執行 `ExplorerFinder.exe` 後，會在系統匣看到圖示。
+    執行 `ExplorerSelector.exe` 後，會在系統匣看到圖示。
 
 ## 注意事項
 

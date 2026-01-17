@@ -3,11 +3,11 @@
 
 $ErrorActionPreference = "Continue"
 
-Write-Host "Removing ExplorerFinder Package..." -ForegroundColor Cyan
-Get-AppxPackage *ExplorerFinder* | Remove-AppxPackage
+Write-Host "Removing ExplorerSelector Package..." -ForegroundColor Cyan
+Get-AppxPackage *ExplorerSelector* | Remove-AppxPackage
 
 Write-Host "Unregistering DLL..." -ForegroundColor Cyan
-$dllPath = "$PSScriptRoot\\ExplorerPlugin.dll"
+$dllPath = "$PSScriptRoot\ExplorerPlugin\x64\Debug\ExplorerPlugin.dll"
 if (Test-Path $dllPath) {
     Start-Process "regsvr32.exe" -ArgumentList "/u /s `"$dllPath`"" -Wait
 }
