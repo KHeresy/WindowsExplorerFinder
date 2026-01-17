@@ -1,4 +1,5 @@
 #include "QExplorerFinder.h"
+#include <QApplication>
 #include <QDir>
 #include <QStringList>
 #include <QDebug>
@@ -69,9 +70,21 @@ void QExplorerFinder::on_btnSearch_clicked()
         searchPattern = "*" + searchPattern + "*";
     }
 
+    ui->lblStatus->setText(tr("Searching..."));
+    
+    ui->listResults->clear();
+    QListWidgetItem *item = new QListWidgetItem(tr("Searching..."));
+    item->setTextAlignment(Qt::AlignCenter);
+    item->setForeground(Qt::gray);
+    ui->listResults->addItem(item);
+    ui->listResults->setEnabled(false);
+    
+    QApplication::processEvents();
+
     QDir dir(m_targetPath);
     QStringList files = dir.entryList(QStringList() << searchPattern, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     
+    ui->listResults->setEnabled(true);
     ui->listResults->clear();
     ui->listResults->addItems(files);
     
