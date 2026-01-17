@@ -160,7 +160,7 @@ void QExplorerFinder::updateStatusLabel()
 {
     int total = ui->listResults->count();
     int selected = ui->listResults->selectedItems().count();
-    ui->lblStatus->setText(QString("Found: %1 | Selected: %2").arg(total).arg(selected));
+    ui->lblStatus->setText(tr("Found: %1 | Selected: %2").arg(total).arg(selected));
 }
 
 // Helper to get Folder Object from WebBrowser

@@ -9,6 +9,8 @@
 #include <QAbstractNativeEventFilter>
 #include <QKeySequence>
 #include <QSettings>
+#include <QTranslator>
+#include <QLocale>
 
 #include <windows.h>
 #include <shlobj.h>
@@ -27,7 +29,7 @@ void openWindow(const QString& path) {
     QExplorerFinder* window = new QExplorerFinder();
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->setTargetPath(path);
-    window->setWindowTitle("Finding in: " + path);
+    window->setWindowTitle(QObject::tr("Finding in: ") + path);
     window->show();
     window->raise();
     window->activateWindow();
@@ -161,6 +163,21 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
 
+    QSettings settings("ExplorerFinder", "ExplorerFinder");
+    QString lang = settings.value("Language", "").toString();
+
+    QTranslator translator;
+    bool loaded = false;
+    if (lang.isEmpty()) {
+        loaded = translator.load(QLocale::system(), "explorerfinder", "_", ":/i18n");
+    } else {
+        loaded = translator.load("explorerfinder_" + lang, ":/i18n");
+    }
+
+    if (loaded) {
+        app.installTranslator(&translator);
+    }
+
     QString serverName = "ExplorerFinderServer";
     QLocalSocket socket;
     socket.connectToServer(serverName);
@@ -195,10 +212,10 @@ int main(int argc, char *argv[])
     app.installNativeEventFilter(&hotkeyFilter);
 
     QSystemTrayIcon trayIcon(QIcon(":/QExplorerFinder/app_icon.png"), &app);
-    trayIcon.setToolTip("Explorer Finder");
+    trayIcon.setToolTip(QObject::tr("Explorer Finder"));
     
     QMenu trayMenu;
-    QAction* settingsAction = trayMenu.addAction("Settings...");
+    QAction* settingsAction = trayMenu.addAction(QObject::tr("Settings..."));
     
     auto openSettings = [&hotkeyFilter]() {
         SettingsDialog dlg;
@@ -215,7 +232,7 @@ int main(int argc, char *argv[])
     });
 
     trayMenu.addSeparator();
-    QAction* exitAction = trayMenu.addAction("Exit");
+    QAction* exitAction = trayMenu.addAction(QObject::tr("Exit"));
     QObject::connect(exitAction, &QAction::triggered, &app, &QApplication::quit);
     
     trayIcon.setContextMenu(&trayMenu);

@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QKeySequence>
+#include <QMessageBox>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -20,6 +21,17 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     QString hotkeyStr = settings.value("GlobalHotkey", "Ctrl+F3").toString();
     ui->keySequenceEdit->setKeySequence(QKeySequence::fromString(hotkeyStr));
 
+    // Load Language
+    ui->cmbLanguage->addItem(tr("System Default"), "");
+    ui->cmbLanguage->addItem("English", "en_US");
+    ui->cmbLanguage->addItem(tr("Traditional Chinese"), "zh_TW");
+
+    QString currentLang = settings.value("Language", "").toString();
+    int index = ui->cmbLanguage->findData(currentLang);
+    if (index != -1) {
+        ui->cmbLanguage->setCurrentIndex(index);
+    }
+
     // Load AutoStart
     bool autoStart = settings.value("AutoStart", false).toBool();
     ui->chkAutoStart->setChecked(autoStart);
@@ -36,9 +48,17 @@ void SettingsDialog::accept()
     
     QString newHotkey = ui->keySequenceEdit->keySequence().toString();
     bool newAutoStart = ui->chkAutoStart->isChecked();
+    
+    QString oldLang = settings.value("Language", "").toString();
+    QString newLang = ui->cmbLanguage->currentData().toString();
 
     settings.setValue("GlobalHotkey", newHotkey);
     settings.setValue("AutoStart", newAutoStart);
+    settings.setValue("Language", newLang);
+
+    if (oldLang != newLang) {
+        QMessageBox::information(this, tr("Language Changed"), tr("Please restart the application for the language change to take effect."));
+    }
 
     applyAutoStart(newAutoStart);
 
@@ -51,7 +71,7 @@ void SettingsDialog::applyAutoStart(bool enable)
     QSettings bootSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
     QString appPath = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
     if (enable) {
-        bootSettings.setValue("ExplorerFinder", """ + appPath + """);
+        bootSettings.setValue("ExplorerFinder", "\"" + appPath + "\"");
     } else {
         bootSettings.remove("ExplorerFinder");
     }
