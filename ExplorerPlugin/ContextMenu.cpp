@@ -2,6 +2,7 @@
 #include "ContextMenu.h"
 #include "resource.h"
 #include <shellapi.h>
+#include <shlwapi.h>
 #include <vector>
 #include <string>
 
@@ -88,6 +89,7 @@ IFACEMETHODIMP CContextMenu::QueryInterface(REFIID riid, void** ppv)
     {
         QITABENT(CContextMenu, IShellExtInit),
         QITABENT(CContextMenu, IContextMenu),
+        QITABENT(CContextMenu, IExplorerCommand),
         { 0 },
     };
     return QISearch(this, qit, riid, ppv);
@@ -181,18 +183,6 @@ IFACEMETHODIMP CContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT 
     mii.hbmpItem = hBitmap; 
 
     InsertMenuItemW(hMenu, indexMenu, TRUE, &mii);
-    // Note: We leak hBitmap here if we don't delete it?
-    // Windows Menu takes ownership of the bitmap if we set HBMMENU_SYSTEM? No.
-    // For MIIM_BITMAP, "The HBITMAP that is displayed".
-    // "The application must destroy the bitmap when it is no longer needed."
-    // However, destroying it while the menu is shown will remove it.
-    // Standard IContextMenu practice: The menu destroys the bitmap? No.
-    // But since this is a Shell Extension, the menu lifespan is short.
-    // Actually, usually we should store it in member variable and destroy in destructor or reset.
-    // But for a simple example, let's see. If we leak 1 small bitmap per click, it's not great.
-    // But ContextMenu object is created per click and destroyed after InvokeCommand?
-    // No, IContextMenu is instantiated, QueryContextMenu called, then InvokeCommand (maybe), then Release.
-    // So we can store hBitmap in the class and delete in destructor.
     
     // Storing in member to clean up later
     if (hBitmap) m_hMenuBitmap = hBitmap;
@@ -215,55 +205,7 @@ IFACEMETHODIMP CContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 
     if (LOWORD(pici->lpVerb) == 0)
     {
-        // 1. Convert path to UTF-8
-        int size_needed = WideCharToMultiByte(CP_UTF8, 0, m_szSelectedFolder.c_str(), -1, NULL, 0, NULL, NULL);
-        std::string strPath(size_needed, 0);
-        WideCharToMultiByte(CP_UTF8, 0, m_szSelectedFolder.c_str(), -1, &strPath[0], size_needed, NULL, NULL);
-        // Remove null terminator if present at end for cleaner raw byte send
-        if (strPath.length() > 0 && strPath.back() == '\0') {
-            strPath.pop_back();
-        }
-
-        // 2. Try to connect to existing server via Named Pipe
-        // QLocalServer uses "\\.\pipe\" + serverName
-        const wchar_t* pipeName = L"\\\\.\\pipe\\ExplorerFinderServer";
-        
-        HANDLE hPipe = CreateFileW(pipeName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-        if (hPipe != INVALID_HANDLE_VALUE) {
-            DWORD written;
-            // Write payload
-            WriteFile(hPipe, strPath.c_str(), (DWORD)strPath.length(), &written, NULL);
-            CloseHandle(hPipe);
-            return S_OK;
-        }
-
-        // 3. Fallback: Start Process
-        // Get the DLL path to find the EXE
-        wchar_t szDllPath[MAX_PATH];
-        GetModuleFileNameW(g_hInst, szDllPath, MAX_PATH);
-        PathRemoveFileSpecW(szDllPath);
-        
-        std::wstring exePath = std::wstring(szDllPath) + L"\\ExplorerFinder.exe";
-
-        // Construct command line: "PathToExe" "FolderPath"
-        std::wstring commandLine = L"\"" + exePath + L"\" \"" + m_szSelectedFolder + L"\"";
-
-        STARTUPINFOW si = { sizeof(si) };
-        PROCESS_INFORMATION pi = { 0 };
-
-        // We need a mutable string for CreateProcess
-        std::vector<wchar_t> cmdVec(commandLine.begin(), commandLine.end());
-        cmdVec.push_back(0);
-
-        if (CreateProcessW(NULL, cmdVec.data(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-        {
-            CloseHandle(pi.hProcess);
-            CloseHandle(pi.hThread);
-        }
-        else
-        {
-            MessageBoxW(pici->hwnd, L"Failed to start ExplorerFinder.", L"Error", MB_OK | MB_ICONERROR);
-        }
+        RunApp(m_szSelectedFolder);
     }
 
     return S_OK;
@@ -271,5 +213,127 @@ IFACEMETHODIMP CContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 
 IFACEMETHODIMP CContextMenu::GetCommandString(UINT_PTR idCmd, UINT uType, UINT* pReserved, LPSTR pszName, UINT cchMax)
 {
+    return E_NOTIMPL;
+}
+
+void CContextMenu::RunApp(const std::wstring& folderPath)
+{
+    // 1. Convert path to UTF-8
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, folderPath.c_str(), -1, NULL, 0, NULL, NULL);
+    std::string strPath(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, folderPath.c_str(), -1, &strPath[0], size_needed, NULL, NULL);
+    // Remove null terminator if present at end for cleaner raw byte send
+    if (strPath.length() > 0 && strPath.back() == '\0') {
+        strPath.pop_back();
+    }
+
+    // 2. Try to connect to existing server via Named Pipe
+    // QLocalServer uses "\\.\pipe\" + serverName
+    const wchar_t* pipeName = L"\\\\.\\pipe\\ExplorerFinderServer";
+    
+    HANDLE hPipe = CreateFileW(pipeName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+    if (hPipe != INVALID_HANDLE_VALUE) {
+        DWORD written;
+        // Write payload
+        WriteFile(hPipe, strPath.c_str(), (DWORD)strPath.length(), &written, NULL);
+        CloseHandle(hPipe);
+        return;
+    }
+
+    // 3. Fallback: Start Process
+    // Get the DLL path to find the EXE
+    wchar_t szDllPath[MAX_PATH];
+    GetModuleFileNameW(g_hInst, szDllPath, MAX_PATH);
+    PathRemoveFileSpecW(szDllPath);
+    
+    std::wstring exePath = std::wstring(szDllPath) + L"\\ExplorerFinder.exe";
+
+    // Construct command line: "PathToExe" "FolderPath"
+    std::wstring commandLine = L"\"" + exePath + L"\" \"" + folderPath + L"\"";
+
+    STARTUPINFOW si = { sizeof(si) };
+    PROCESS_INFORMATION pi = { 0 };
+
+    // We need a mutable string for CreateProcess
+    std::vector<wchar_t> cmdVec(commandLine.begin(), commandLine.end());
+    cmdVec.push_back(0);
+
+    if (CreateProcessW(NULL, cmdVec.data(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+    {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+}
+
+// IExplorerCommand Implementation
+
+IFACEMETHODIMP CContextMenu::GetTitle(IShellItemArray* psiItemArray, LPWSTR* ppszName)
+{
+    wchar_t szMenuText[128];
+    if (0 == LoadStringW(g_hInst, IDS_MENU_TEXT, szMenuText, ARRAYSIZE(szMenuText))) {
+        wcscpy_s(szMenuText, L"Find Files");
+    }
+    return SHStrDupW(szMenuText, ppszName);
+}
+
+IFACEMETHODIMP CContextMenu::GetIcon(IShellItemArray* psiItemArray, LPWSTR* ppszIcon)
+{
+    // Returns "PathToDll,-IconID"
+    wchar_t szDllPath[MAX_PATH];
+    GetModuleFileNameW(g_hInst, szDllPath, MAX_PATH);
+    std::wstring iconPath = std::wstring(szDllPath) + L",-" + std::to_wstring(IDI_ICON1);
+    return SHStrDupW(iconPath.c_str(), ppszIcon);
+}
+
+IFACEMETHODIMP CContextMenu::GetToolTip(IShellItemArray* psiItemArray, LPWSTR* ppszInfotip)
+{
+    return E_NOTIMPL;
+}
+
+IFACEMETHODIMP CContextMenu::GetCanonicalName(GUID* pguidCommandName)
+{
+    *pguidCommandName = CLSID_ExplorerFinder;
+    return S_OK;
+}
+
+IFACEMETHODIMP CContextMenu::GetState(IShellItemArray* psiItemArray, BOOL fOkToBeSlow, EXPCMDSTATE* pCmdState)
+{
+    *pCmdState = ECS_ENABLED;
+    return S_OK;
+}
+
+IFACEMETHODIMP CContextMenu::Invoke(IShellItemArray* psiItemArray, IBindCtx* pbc)
+{
+    if (!psiItemArray) return E_INVALIDARG;
+
+    DWORD count = 0;
+    psiItemArray->GetCount(&count);
+    
+    if (count > 0)
+    {
+        IShellItem* psi = NULL;
+        if (SUCCEEDED(psiItemArray->GetItemAt(0, &psi)))
+        {
+            LPWSTR pszPath = NULL;
+            if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath)))
+            {
+                RunApp(pszPath);
+                CoTaskMemFree(pszPath);
+            }
+            psi->Release();
+        }
+    }
+    return S_OK;
+}
+
+IFACEMETHODIMP CContextMenu::GetFlags(EXPCMDFLAGS* pFlags)
+{
+    *pFlags = ECF_DEFAULT;
+    return S_OK;
+}
+
+IFACEMETHODIMP CContextMenu::EnumSubCommands(IEnumExplorerCommand** ppEnum)
+{
+    *ppEnum = NULL;
     return E_NOTIMPL;
 }

@@ -15,8 +15,9 @@
     *   預設 `Ctrl + F3`。在檔案總管視窗中按下，可立即開啟搜尋介面。
     *   快速鍵可於設定中自定義。
 *   **右鍵選單整合 (Shell Extension)**：
+    *   **完整支援 Windows 11**：可註冊至第一層右鍵選單（Modern Context Menu）。
     *   原生整合於檔案總管右鍵選單「尋找檔案」。
-    *   使用純 Win32 API 實作 DLL 插件，輕量且無負擔。
+    *   使用純 Win32 API 實作 DLL 插件 (IExplorerCommand)，輕量且無負擔。
 *   **進階搜尋與選取**：
     *   **雙向連動**：點兩下搜尋結果即可在檔案總管中選取；點擊「在檔案總管選取」可批次選取所有選中項。
     *   **多選支持**：支援選取全部、反向選取、全部取消。
@@ -35,17 +36,48 @@
 
 ## 專案結構
 
-*   **ExplorerPlugin** (DLL): Windows Shell Extension，負責右鍵選單邏輯。
+*   **ExplorerPlugin** (DLL): Windows Shell Extension，負責右鍵選單邏輯 (支援 IContextMenu 與 IExplorerCommand)。
 *   **ExplorerFinder** (EXE): Qt 6 應用程式，負責搜尋介面、全域快速鍵與檔案總管控制。
+*   **AppxManifest.xml** / **Install.ps1**: 用於 Windows 11 Sparse Package 註冊的設定與腳本。
 
 ## 編譯說明
 
 1.  確保已安裝 Visual Studio 2026 與 Qt 6.10.1 (並包含 Network 模組)。
 2.  開啟 `ExplorerFinder.slnx`。
-3.  選擇 `Debug` 或 `Release` 設定，平台選擇 `x64`。
+3.  選擇 `Release` 設定，平台選擇 `x64`。
 4.  建置方案 (Build Solution)。
 
-## 安裝與使用
+## 打包與安裝 (推薦)
+
+為了方便部署與完整支援 Windows 11 右鍵選單，本專案提供了一鍵打包腳本。
+
+1.  **打包專案**：
+    以系統管理員身分執行 `package.ps1`：
+    ```powershell
+    .\package.ps1
+    ```
+    此腳本會將執行檔、DLL、Qt 依賴庫以及安裝腳本整理至專案根目錄下的 `App` 資料夾。
+
+2.  **安裝 (Windows 11 Modern Context Menu)**：
+    進入 `App` 資料夾，以**系統管理員身分**執行 `Install.ps1`：
+    ```powershell
+    cd App
+    .\Install.ps1
+    ```
+    此腳本會：
+    *   註冊 COM 元件 (ExplorerPlugin.dll)。
+    *   建立並信任開發用憑證。
+    *   註冊 Sparse Package 以啟用 Windows 11 第一層右鍵選單。
+
+3.  **解除安裝**：
+    進入 `App` 資料夾，以**系統管理員身分**執行 `Uninstall.ps1`：
+    ```powershell
+    .\Uninstall.ps1
+    ```
+
+## 手動安裝 (僅舊版選單)
+
+若不需要 Windows 11 第一層選單支援，可僅註冊 DLL：
 
 1.  **註冊右鍵選單**：
     以**系統管理員身分**執行：
@@ -54,21 +86,9 @@
     ```
 2.  **執行主程式**：
     執行 `ExplorerFinder.exe` 後，會在系統匣看到圖示。
-3.  **開啟設定**：
-    在系統匣圖示點擊滑鼠右鍵選擇 "Settings..."，或直接**連點兩下**圖示。
-4.  **快速搜尋**：
-    在檔案總管中按下 `Ctrl + F3` 或使用右鍵選單。
-
-## 解除安裝
-
-1.  以**系統管理員身分**執行：
-    ```powershell
-    regsvr32 /u "ExplorerPlugin.dll"
-    ```
-2.  若有開啟「自動啟動」，請先在設定中取消勾選。
-3.  結束主程式後刪除檔案即可。
 
 ## 注意事項
 
-*   搜尋支援萬用字元（例如輸入 `test` 會自動搜尋 `*test*`）。
-*   本程式使用 `QLocalServer` 確保單一執行實體，若遇到無法啟動的情況，請檢查是否已有程序在背景執行。
+*   **搜尋中的狀態**：搜尋時會在列表顯示 "Searching..." 並鎖定列表，搜尋完成後自動恢復。
+*   **萬用字元**：支援 `*` 與 `?` 萬用字元搜尋。
+*   **單一實體**：本程式使用 `QLocalServer` 確保單一執行實體。

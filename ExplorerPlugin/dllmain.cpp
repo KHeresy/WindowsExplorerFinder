@@ -94,7 +94,16 @@ STDAPI DllRegisterServer()
     if (SUCCEEDED(hr))
     {
         // Directory\Background (Right click on empty space in folder)
+        // Legacy (Windows 10 "Show more options" / Old Windows)
         hr = RegisterInHKCR(L"Directory\\Background\\shellex\\ContextMenuHandlers", L"ExplorerFinder", CLSID_ExplorerFinder_String);
+        
+        if (SUCCEEDED(hr))
+        {
+            // Modern Windows 11 Registration (ExplorerCommandHandler)
+            // Note: For this to appear in the top-level menu on Windows 11, the app usually needs to be packaged (Sparse Package)
+            // or registered via identity. However, registering the handler is the first step.
+            hr = RegisterInHKCR(L"Directory\\Background\\shell\\ExplorerFinder\\ExplorerCommandHandler", NULL, CLSID_ExplorerFinder_String);
+        }
     }
 
     if (SUCCEEDED(hr))
@@ -113,6 +122,7 @@ STDAPI DllUnregisterServer()
 
     // Unregister Shell Extension
     RegDeleteTreeW(HKEY_CLASSES_ROOT, L"Directory\\Background\\shellex\\ContextMenuHandlers\\ExplorerFinder");
+    RegDeleteTreeW(HKEY_CLASSES_ROOT, L"Directory\\Background\\shell\\ExplorerFinder");
 
     return S_OK;
 }

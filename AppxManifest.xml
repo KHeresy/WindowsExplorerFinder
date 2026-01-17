@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  IgnorableNamespaces="uap rescap desktop desktop4 com">
+
+  <Identity
+    Name="ExplorerFinder.Package"
+    Publisher="CN=ExplorerFinderDev"
+    Version="1.0.0.0" />
+
+  <Properties>
+    <DisplayName>ExplorerFinder</DisplayName>
+    <PublisherDisplayName>ExplorerFinderDev</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.22000.0" />
+  </Dependencies>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+    <rescap:Capability Name="allowElevation" />
+  </Capabilities>
+
+  <Applications>
+    <Application Id="ExplorerFinderApp" Executable="ExplorerFinder\x64\Debug\ExplorerFinder.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="ExplorerFinder"
+        Description="Fast File Search"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+      </uap:VisualElements>
+      <Extensions>
+        <!-- Register the Context Menu Extension for Windows 11 -->
+        <desktop4:Extension Category="windows.fileExplorerContextMenus">
+          <desktop4:FileExplorerContextMenus>
+            <desktop4:ItemType Type="*">
+              <!-- This CLSID matches the one in ExplorerPlugin -->
+              <desktop4:Verb Id="ExplorerFinderVerb" Clsid="3289050C-926F-4C10-8531-9F31E63C2C90" />
+            </desktop4:ItemType>
+          </desktop4:FileExplorerContextMenus>
+        </desktop4:Extension>
+        
+        <!-- Register the COM Server (The DLL) so the Package knows about it -->
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:SurrogateServer DisplayName="ExplorerFinder Context Menu">
+                <com:Class Id="3289050C-926F-4C10-8531-9F31E63C2C90" Path="ExplorerPlugin\x64\Debug\ExplorerPlugin.dll" ThreadingModel="STA"/>
+            </com:SurrogateServer>
+          </com:ComServer>
+        </com:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+</Package>
