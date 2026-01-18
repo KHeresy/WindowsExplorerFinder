@@ -16,6 +16,7 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <exdisp.h>
+#include <servprov.h>
 #include <wrl/client.h>
 
 #pragma comment(lib, "shlwapi.lib")
@@ -45,6 +46,14 @@ QString GetActiveExplorerPath() {
     if (wcscmp(className, L"CabinetWClass") != 0 && wcscmp(className, L"ExploreWClass") != 0) {
         return QString();
     }
+    
+    // Get focus info for the Explorer thread
+    DWORD dwProcessId;
+    DWORD dwThreadId = GetWindowThreadProcessId(hwnd, &dwProcessId);
+    GUITHREADINFO guiInfo = { 0 };
+    guiInfo.cbSize = sizeof(GUITHREADINFO);
+    GetGUIThreadInfo(dwThreadId, &guiInfo);
+    HWND hwndFocus = guiInfo.hwndFocus;
 
     QString foundPath;
     CoInitialize(NULL); 
@@ -69,27 +78,90 @@ QString GetActiveExplorerPath() {
                             if (SUCCEEDED(spBrowser->get_Document(&spDispDoc))) {
                                 ComPtr<IShellFolderViewDual> spView;
                                 if (SUCCEEDED(spDispDoc.As(&spView))) {
-                                    ComPtr<Folder> spFolder;
-                                    if (SUCCEEDED(spView->get_Folder(&spFolder))) {
-                                        ComPtr<Folder2> spFolder2;
-                                        if (SUCCEEDED(spFolder.As(&spFolder2))) {
-                                            ComPtr<FolderItem> spFolderSelf;
-                                            if (SUCCEEDED(spFolder2->get_Self(&spFolderSelf))) {
-                                                BSTR bstrPath;
-                                                if (SUCCEEDED(spFolderSelf->get_Path(&bstrPath))) {
-                                                    foundPath = QString::fromWCharArray(bstrPath);
-                                                    SysFreeString(bstrPath);
+                                    BOOL visible = FALSE;
+                                    BOOL focused = FALSE;
+                                    
+                                    ComPtr<IServiceProvider> spSP;
+                                    if (SUCCEEDED(spBrowser.As(&spSP))) {
+                                        ComPtr<IShellBrowser> spShellBrowser;
+                                        if (SUCCEEDED(spSP->QueryService(SID_STopLevelBrowser, IID_IShellBrowser, &spShellBrowser))) {
+                                            ComPtr<IShellView> spShellView;
+                                            if (SUCCEEDED(spShellBrowser->QueryActiveShellView(&spShellView))) {
+                                                HWND hwndView = NULL;
+                                                if (SUCCEEDED(spShellView->GetWindow(&hwndView))) {
+                                                    if (IsWindowVisible(hwndView)) {
+                                                        visible = TRUE;
+                                                    }
+                                                    if (hwndFocus && (hwndFocus == hwndView || IsChild(hwndView, hwndFocus))) {
+                                                        focused = TRUE;
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+
+                                    if (focused || (visible && foundPath.isEmpty())) {
+                                        ComPtr<Folder> spFolder;
+                                        if (SUCCEEDED(spView->get_Folder(&spFolder))) {
+                                            ComPtr<Folder2> spFolder2;
+                                            if (SUCCEEDED(spFolder.As(&spFolder2))) {
+                                                ComPtr<FolderItem> spFolderSelf;
+                                                if (SUCCEEDED(spFolder2->get_Self(&spFolderSelf))) {
+                                                    BSTR bstrPath;
+                                                    if (SUCCEEDED(spFolderSelf->get_Path(&bstrPath))) {
+                                                        QString tempPath = QString::fromWCharArray(bstrPath);
+                                                        SysFreeString(bstrPath);
+                                                        
+                                                        // If focused, this is definitely the one.
+                                                        if (focused) {
+                                                            foundPath = tempPath;
+                                                            // We can break the outer loop if we found the focused one.
+                                                            // But break logic is tricky inside nested blocks.
+                                                            // We'll set foundPath and break later.
+                                                        } else {
+                                                            // If not focused, but visible, keep it as candidate 
+                                                            // ONLY if we haven't found a focused one yet.
+                                                            // And if we haven't found any visible one yet (foundPath is empty).
+                                                            foundPath = tempPath;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (focused) break;
+                                    }
                                 }
                             }
-                            break;
+                            if (foundPath.isEmpty()) {
+                                // Keep searching
+                            } else {
+                                // If focused, stop. If just visible, continue to check if another is focused?
+                                // Actually, if we found a focused one, we break immediately.
+                                // If we found a visible one, we store it.
+                                // We continue loop to see if there is a FOCUSED one.
+                                // Wait, the break condition above "if (focused) break;" handles it.
+                                // What about the break condition at end of loop?
+                            }
                         }
                     }
                 }
                 VariantClear(&vIndex);
+                // If we found the focused one, break entirely.
+                // We need a way to check if 'foundPath' came from a focused match.
+                // Re-check focused state?
+                // Or just: if we found a path, check if we should stop.
+                // If we assume only one tab is visible, we could stop. 
+                // But the problem is IsWindowVisible might be unreliable.
+                // So: Prioritize Focused. If no Focus, fallback to First Visible.
+                
+                // My logic above:
+                // if (focused) break; 
+                // But this break only exits the `if ((HWND)hwndBrowser == hwnd)` block? No, it's inside `if` but loop is outside.
+                // Wait, `break` exits the nearest loop (the `for` loop). Correct.
+                
+                // So if focused, we break and use it.
+                // If visible, we set foundPath (if empty) and continue.
+                // If we later find a focused one, we overwrite foundPath and break.
             }
         }
     }

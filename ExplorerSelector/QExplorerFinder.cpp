@@ -10,6 +10,7 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <exdisp.h>
+#include <servprov.h>
 #include <wrl/client.h>
 
 using namespace Microsoft::WRL;
@@ -216,6 +217,10 @@ void QExplorerFinder::selectFiles(const QStringList& files)
     long count = 0;
     spShellWindows->get_Count(&count);
 
+    ComPtr<IWebBrowser2> bestBrowser;
+    ComPtr<IShellFolderViewDual> bestView;
+    ComPtr<Folder> bestFolder;
+
     for (long i = 0; i < count; ++i)
     {
         ComPtr<IDispatch> spDisp;
@@ -255,52 +260,75 @@ void QExplorerFinder::selectFiles(const QStringList& files)
 
         if (folderPath.compare(m_targetPath, Qt::CaseInsensitive) == 0)
         {
-            // Found the window!
             ComPtr<IDispatch> spDispDoc;
-            spBrowser->get_Document(&spDispDoc);
+            if (FAILED(spBrowser->get_Document(&spDispDoc))) continue;
+            
             ComPtr<IShellFolderViewDual> spView;
-            spDispDoc.As(&spView);
+            if (FAILED(spDispDoc.As(&spView))) continue;
 
-            bool first = true;
-            for (const QString& file : files)
-            {
-                ComPtr<FolderItem> spItem;
-                BSTR bstrName = SysAllocString(file.toStdWString().c_str());
-                hr = spFolder->ParseName(bstrName, &spItem);
-                SysFreeString(bstrName);
-
-                if (SUCCEEDED(hr) && spItem)
-                {
-                    long flags = 0;
-                    if (first) {
-                        flags = 1 | 4 | 8 | 16; // Select, Deselect others, Ensure visible, Focus
-                        first = false;
-                    } else {
-                        flags = 1 | 8; // Select, Ensure visible
+            bool isVisible = false;
+            ComPtr<IServiceProvider> spSP;
+            if (SUCCEEDED(spBrowser.As(&spSP))) {
+                ComPtr<IShellBrowser> spShellBrowser;
+                if (SUCCEEDED(spSP->QueryService(SID_STopLevelBrowser, IID_IShellBrowser, &spShellBrowser))) {
+                    ComPtr<IShellView> spShellView;
+                    if (SUCCEEDED(spShellBrowser->QueryActiveShellView(&spShellView))) {
+                        HWND hwndView = NULL;
+                        if (SUCCEEDED(spShellView->GetWindow(&hwndView))) {
+                            if (IsWindowVisible(hwndView)) {
+                                isVisible = true;
+                            }
+                        }
                     }
-                    
-                    VARIANT vItem;
-                    VariantInit(&vItem);
-                    vItem.vt = VT_DISPATCH;
-                    vItem.pdispVal = spItem.Get();
-                    // spItem.Get() does not AddRef, but VariantInit/Clear doesn't Release if we don't own it?
-                    // Wait, VT_DISPATCH in VARIANT usually implies ownership if we use VariantClear?
-                    // VariantClear calls Release() if VT_DISPATCH.
-                    // So we must AddRef if we put it in Variant.
-                    spItem.Get()->AddRef();
-                    
-                    spView->SelectItem(&vItem, flags);
-                    
-                    VariantClear(&vItem); // Releases
                 }
             }
             
-            // Bring window to front
-            LONG_PTR hwnd;
-            spBrowser->get_HWND(&hwnd);
-            SetForegroundWindow((HWND)hwnd);
-            break; // Done
+            if (isVisible || !bestBrowser) {
+                bestBrowser = spBrowser;
+                bestView = spView;
+                bestFolder = spFolder;
+                
+                if (isVisible) break; // Found the active tab, stop searching
+            }
         }
+    }
+    
+    if (bestBrowser && bestView && bestFolder)
+    {
+        bool first = true;
+        for (const QString& file : files)
+        {
+            ComPtr<FolderItem> spItem;
+            BSTR bstrName = SysAllocString(file.toStdWString().c_str());
+            hr = bestFolder->ParseName(bstrName, &spItem);
+            SysFreeString(bstrName);
+
+            if (SUCCEEDED(hr) && spItem)
+            {
+                long flags = 0;
+                if (first) {
+                    flags = 1 | 4 | 8 | 16; // Select, Deselect others, Ensure visible, Focus
+                    first = false;
+                } else {
+                    flags = 1 | 8; // Select, Ensure visible
+                }
+                
+                VARIANT vItem;
+                VariantInit(&vItem);
+                vItem.vt = VT_DISPATCH;
+                vItem.pdispVal = spItem.Get();
+                spItem.Get()->AddRef();
+                
+                bestView->SelectItem(&vItem, flags);
+                
+                VariantClear(&vItem);
+            }
+        }
+        
+        // Bring window to front
+        LONG_PTR hwnd;
+        bestBrowser->get_HWND(&hwnd);
+        SetForegroundWindow((HWND)hwnd);
     }
 
     CoUninitialize();

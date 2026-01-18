@@ -4,13 +4,13 @@
 <context>
     <name>QExplorerFinder</name>
     <message>
-        <location filename="../QExplorerFinder.cpp" line="79"/>
-        <location filename="../QExplorerFinder.cpp" line="82"/>
+        <location filename="../QExplorerFinder.cpp" line="80"/>
+        <location filename="../QExplorerFinder.cpp" line="83"/>
         <source>Searching...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.cpp" line="187"/>
+        <location filename="../QExplorerFinder.cpp" line="188"/>
         <source>Found: %1 | Selected: %2</source>
         <translation>找到: %1 | 已選: %2</translation>
     </message>
@@ -90,22 +90,22 @@
         <translation type="vanished">Explorer Finder</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="215"/>
+        <location filename="../main.cpp" line="287"/>
         <source>Explorer Selector</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="218"/>
+        <location filename="../main.cpp" line="290"/>
         <source>Settings...</source>
         <translation>設定...</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="235"/>
+        <location filename="../main.cpp" line="307"/>
         <source>Exit</source>
         <translation>離開</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="32"/>
+        <location filename="../main.cpp" line="33"/>
         <source>Finding in: </source>
         <translation>正在搜尋: </translation>
     </message>
@@ -183,22 +183,22 @@
         <translation>繁體中文</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="67"/>
+        <location filename="../SettingsDialog.cpp" line="73"/>
         <source>Language Changed</source>
         <translation>語言已變更</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="67"/>
+        <location filename="../SettingsDialog.cpp" line="73"/>
         <source>Please restart the application for the language change to take effect.</source>
         <translation>請重新啟動應用程式以套用語言變更。</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="79"/>
+        <location filename="../SettingsDialog.cpp" line="85"/>
         <source>History Cleared</source>
         <translation>歷史已清除</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="79"/>
+        <location filename="../SettingsDialog.cpp" line="85"/>
         <source>Search history has been cleared.</source>
         <translation>搜尋歷史紀錄已清除。</translation>
     </message>

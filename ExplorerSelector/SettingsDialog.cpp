@@ -39,6 +39,12 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     // Load History Size
     int historySize = settings.value("HistorySize", 10).toInt();
     ui->sbHistorySize->setValue(historySize);
+
+    // Set focus to project link
+    ui->lblProjectLink->setFocusPolicy(Qt::StrongFocus);
+    ui->lblProjectLink->setTextInteractionFlags(ui->lblProjectLink->textInteractionFlags() | Qt::LinksAccessibleByKeyboard | Qt::TextSelectableByKeyboard);
+    QWidget::setTabOrder(ui->lblProjectLink, ui->keySequenceEdit);
+    ui->lblProjectLink->setFocus();
 }
 
 SettingsDialog::~SettingsDialog()

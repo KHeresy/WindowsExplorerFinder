@@ -96,14 +96,6 @@ STDAPI DllRegisterServer()
         // Directory\Background (Right click on empty space in folder)
         // Legacy (Windows 10 "Show more options" / Old Windows)
         hr = RegisterInHKCR(L"Directory\\Background\\shellex\\ContextMenuHandlers", L"ExplorerSelector", CLSID_ExplorerSelector_String);
-        
-        if (SUCCEEDED(hr))
-        {
-            // Modern Windows 11 Registration (ExplorerCommandHandler)
-            // Note: For this to appear in the top-level menu on Windows 11, the app usually needs to be packaged (Sparse Package)
-            // or registered via identity. However, registering the handler is the first step.
-            hr = RegisterInHKCR(L"Directory\\Background\\shell\\ExplorerSelector\\ExplorerCommandHandler", NULL, CLSID_ExplorerSelector_String);
-        }
     }
 
     if (SUCCEEDED(hr))
