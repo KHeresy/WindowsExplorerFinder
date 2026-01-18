@@ -21,6 +21,20 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     QString hotkeyStr = settings.value("GlobalHotkey", "Ctrl+F3").toString();
     ui->keySequenceEdit->setKeySequence(QKeySequence::fromString(hotkeyStr));
 
+    // Handle Hotkey Disable (GroupBox checkable)
+    if (hotkeyStr.isEmpty()) {
+        ui->groupBox->setChecked(false);
+    } else {
+        ui->groupBox->setChecked(true);
+    }
+
+    connect(ui->groupBox, &QGroupBox::toggled, this, [this](bool checked) {
+        if (checked && ui->keySequenceEdit->keySequence().isEmpty()) {
+            // Restore default if re-enabled and empty
+            ui->keySequenceEdit->setKeySequence(QKeySequence("Ctrl+F3"));
+        }
+    });
+
     // Load Language
     ui->cmbLanguage->addItem(tr("System Default"), "");
     ui->cmbLanguage->addItem("English", "en_US");
@@ -45,6 +59,9 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     ui->lblProjectLink->setTextInteractionFlags(ui->lblProjectLink->textInteractionFlags() | Qt::LinksAccessibleByKeyboard | Qt::TextSelectableByKeyboard);
     QWidget::setTabOrder(ui->lblProjectLink, ui->keySequenceEdit);
     ui->lblProjectLink->setFocus();
+
+    // Make window non-resizable
+    layout()->setSizeConstraint(QLayout::SetFixedSize);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -56,7 +73,13 @@ void SettingsDialog::accept()
 {
     QSettings settings("ExplorerSelector", "ExplorerSelector");
     
-    QString newHotkey = ui->keySequenceEdit->keySequence().toString();
+    QString newHotkey;
+    if (!ui->groupBox->isChecked()) {
+        newHotkey = "";
+    } else {
+        newHotkey = ui->keySequenceEdit->keySequence().toString();
+    }
+
     bool newAutoStart = ui->chkAutoStart->isChecked();
     
     QString oldLang = settings.value("Language", "").toString();

@@ -123,37 +123,37 @@
         <translation>全域快速鍵</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="52"/>
+        <location filename="../SettingsDialog.ui" line="55"/>
         <source>Shortcut:</source>
         <translation>快速鍵:</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="101"/>
+        <location filename="../SettingsDialog.ui" line="104"/>
         <source>Language</source>
         <translation>語言</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="107"/>
+        <location filename="../SettingsDialog.ui" line="110"/>
         <source>Interface Language:</source>
         <translation>介面語言:</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="120"/>
+        <location filename="../SettingsDialog.ui" line="123"/>
         <source>Start ExplorerFinder when I log in to Windows</source>
         <translation>登入 Windows 時自動啟動</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="65"/>
+        <location filename="../SettingsDialog.ui" line="68"/>
         <source>Search History</source>
         <translation>搜尋歷史</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="71"/>
+        <location filename="../SettingsDialog.ui" line="74"/>
         <source>Max History Size:</source>
         <translation>最大紀錄數量:</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="91"/>
+        <location filename="../SettingsDialog.ui" line="94"/>
         <source>Clear History</source>
         <translation>清除歷史</translation>
     </message>
@@ -173,32 +173,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="25"/>
+        <location filename="../SettingsDialog.cpp" line="39"/>
         <source>System Default</source>
         <translation>系統預設</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="27"/>
+        <location filename="../SettingsDialog.cpp" line="41"/>
         <source>Traditional Chinese</source>
         <translation>繁體中文</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="73"/>
+        <location filename="../SettingsDialog.cpp" line="96"/>
         <source>Language Changed</source>
         <translation>語言已變更</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="73"/>
+        <location filename="../SettingsDialog.cpp" line="96"/>
         <source>Please restart the application for the language change to take effect.</source>
         <translation>請重新啟動應用程式以套用語言變更。</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="85"/>
+        <location filename="../SettingsDialog.cpp" line="108"/>
         <source>History Cleared</source>
         <translation>歷史已清除</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="85"/>
+        <location filename="../SettingsDialog.cpp" line="108"/>
         <source>Search history has been cleared.</source>
         <translation>搜尋歷史紀錄已清除。</translation>
     </message>

@@ -45,6 +45,9 @@
      <property name="title">
       <string>Global Hotkey</string>
      </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLabel" name="label">
