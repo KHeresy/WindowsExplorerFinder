@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>626</width>
+    <width>540</width>
     <height>440</height>
    </rect>
   </property>
@@ -54,6 +54,12 @@
         </item>
         <item>
          <widget class="QPushButton" name="btnSearch">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Search</string>
           </property>

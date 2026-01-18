@@ -28,42 +28,42 @@
     </message>
     <message>
         <location filename="../QExplorerFinder.ui" line="45"/>
-        <location filename="../QExplorerFinder.ui" line="58"/>
+        <location filename="../QExplorerFinder.ui" line="64"/>
         <source>Search</source>
         <translation>搜尋</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="82"/>
+        <location filename="../QExplorerFinder.ui" line="88"/>
         <source>Found: 0 | Selected: 0</source>
         <translation>找到: 0 | 已選: 0</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="109"/>
+        <location filename="../QExplorerFinder.ui" line="115"/>
         <source>Select All</source>
         <translation>全選</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="116"/>
+        <location filename="../QExplorerFinder.ui" line="122"/>
         <source>Invert</source>
         <translation>反向選取</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="123"/>
+        <location filename="../QExplorerFinder.ui" line="129"/>
         <source>None</source>
         <translation>取消全選</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="134"/>
+        <location filename="../QExplorerFinder.ui" line="140"/>
         <source>Close after selection</source>
         <translation>選取後關閉</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="141"/>
+        <location filename="../QExplorerFinder.ui" line="147"/>
         <source>Always on top</source>
         <translation>永遠在最上方</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="102"/>
+        <location filename="../QExplorerFinder.ui" line="108"/>
         <source>Default Select All</source>
         <translation>預設全選</translation>
     </message>
@@ -78,7 +78,7 @@
         <translation>除錯</translation>
     </message>
     <message>
-        <location filename="../QExplorerFinder.ui" line="161"/>
+        <location filename="../QExplorerFinder.ui" line="167"/>
         <source>Select in Explorer</source>
         <translation>在檔案總管中選取</translation>
     </message>
@@ -118,57 +118,57 @@
         <translation>設定</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="20"/>
+        <location filename="../SettingsDialog.ui" line="46"/>
         <source>Global Hotkey</source>
         <translation>全域快速鍵</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="26"/>
+        <location filename="../SettingsDialog.ui" line="52"/>
         <source>Shortcut:</source>
         <translation>快速鍵:</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="75"/>
+        <location filename="../SettingsDialog.ui" line="101"/>
         <source>Language</source>
         <translation>語言</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="81"/>
+        <location filename="../SettingsDialog.ui" line="107"/>
         <source>Interface Language:</source>
         <translation>介面語言:</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="94"/>
+        <location filename="../SettingsDialog.ui" line="120"/>
         <source>Start ExplorerFinder when I log in to Windows</source>
         <translation>登入 Windows 時自動啟動</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="39"/>
+        <location filename="../SettingsDialog.ui" line="65"/>
         <source>Search History</source>
         <translation>搜尋歷史</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="45"/>
+        <location filename="../SettingsDialog.ui" line="71"/>
         <source>Max History Size:</source>
         <translation>最大紀錄數量:</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="65"/>
+        <location filename="../SettingsDialog.ui" line="91"/>
         <source>Clear History</source>
         <translation>清除歷史</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="101"/>
+        <location filename="../SettingsDialog.ui" line="20"/>
         <source>About</source>
         <translation>關於</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="107"/>
+        <location filename="../SettingsDialog.ui" line="26"/>
         <source>Version: 0.1.0</source>
         <translation>版本: 0.1.0</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.ui" line="114"/>
+        <location filename="../SettingsDialog.ui" line="33"/>
         <source>&lt;a href=&quot;https://github.com/KHeresy/WindowsExplorerFinder&quot;&gt;https://github.com/KHeresy/WindowsExplorerFinder&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
