@@ -173,32 +173,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="39"/>
+        <location filename="../SettingsDialog.cpp" line="40"/>
         <source>System Default</source>
         <translation>系統預設</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="41"/>
+        <location filename="../SettingsDialog.cpp" line="42"/>
         <source>Traditional Chinese</source>
         <translation>繁體中文</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="96"/>
+        <location filename="../SettingsDialog.cpp" line="99"/>
         <source>Language Changed</source>
         <translation>語言已變更</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="96"/>
-        <source>Please restart the application for the language change to take effect.</source>
-        <translation>請重新啟動應用程式以套用語言變更。</translation>
+        <location filename="../SettingsDialog.cpp" line="100"/>
+        <source>Language change requires a restart to take effect.
+Do you want to restart now?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="108"/>
+        <source>Please restart the application for the language change to take effect.</source>
+        <translation type="vanished">請重新啟動應用程式以套用語言變更。</translation>
+    </message>
+    <message>
+        <location filename="../SettingsDialog.cpp" line="117"/>
         <source>History Cleared</source>
         <translation>歷史已清除</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="108"/>
+        <location filename="../SettingsDialog.cpp" line="117"/>
         <source>Search history has been cleared.</source>
         <translation>搜尋歷史紀錄已清除。</translation>
     </message>

@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QKeySequence>
 #include <QMessageBox>
+#include <QProcess>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -92,11 +93,19 @@ void SettingsDialog::accept()
     settings.setValue("Language", newLang);
     settings.setValue("HistorySize", newHistorySize);
 
-    if (oldLang != newLang) {
-        QMessageBox::information(this, tr("Language Changed"), tr("Please restart the application for the language change to take effect."));
-    }
-
     applyAutoStart(newAutoStart);
+
+    if (oldLang != newLang) {
+        auto ret = QMessageBox::question(this, tr("Language Changed"), 
+            tr("Language change requires a restart to take effect.\nDo you want to restart now?"),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+        
+        if (ret == QMessageBox::Yes) {
+            QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList());
+            QCoreApplication::quit();
+            return;
+        }
+    }
 
     QDialog::accept();
 }
